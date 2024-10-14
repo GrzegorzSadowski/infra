@@ -12,12 +12,12 @@ resource "aws_subnet" "main" {
   map_public_ip_on_launch = true
 }
 
-# Create Internet Gateway for public access
+# Internet Gateway for public access
 resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.main.id
 }
 
-# Create route table for public access
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
   route {
@@ -39,31 +39,31 @@ resource "aws_security_group" "ubuntu_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # SSH from anywhere
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # HTTP from anywhere
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # HTTPS from anywhere
+    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = ["0.0.0.0/0"] # ICMP from anywhere
+    cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"] # All outbound traffic
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -74,53 +74,52 @@ resource "aws_security_group" "linux_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block] # SSH only within VPC
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block] # HTTP only within VPC
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block] # HTTPS only within VPC
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
   ingress {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = [aws_vpc.main.cidr_block] # ICMP only within VPC
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
   egress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block] # Outbound SSH only to VPC
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
   egress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block] # Outbound HTTP only to VPC
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
   egress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block] # Outbound HTTPS only to VPC
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
 }
 
 # Create Ubuntu EC2 instance
 resource "aws_instance" "ubuntu" {
-  ami                    = "ami-0084a47cc718c111a" # Latest Ubuntu AMI in us-east-1
+  ami                    = "ami-0084a47cc718c111a"
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.main.id
-  vpc_security_group_ids = [aws_security_group.ubuntu_sg.id]  # Use vpc_security_group_ids instead of security_groups
-  key_name = "g_linux"
+  vpc_security_group_ids = [aws_security_group.ubuntu_sg.id]
   tags = {
     Name = "Ubuntu-Server"
   }
@@ -153,17 +152,15 @@ resource "aws_instance" "ubuntu" {
 
 # Create Amazon Linux EC2 instance
 resource "aws_instance" "amazon_linux" {
-  ami                    = "ami-0592c673f0b1e7665" # Latest Amazon Linux 2 AMI in us-east-1
+  ami                    = "ami-0592c673f0b1e7665"
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.main.id
-  vpc_security_group_ids = [aws_security_group.linux_sg.id]  # Use vpc_security_group_ids instead of security_groups
+  vpc_security_group_ids = [aws_security_group.linux_sg.id]
   key_name = "g_linux"
   tags = {
     Name = "Amazon-Linux-Server"
   }
 }
-
-
 
 
 output "ubuntu_public_ip" {
