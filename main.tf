@@ -141,7 +141,6 @@ resource "aws_instance" "ubuntu" {
               echo \
               "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
               $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-              sudo tee /etc/apt/sources.list.d/docker.list
               sudo apt-get update
               sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
               sudo systemctl start docker
@@ -156,7 +155,6 @@ resource "aws_instance" "amazon_linux" {
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.main.id
   vpc_security_group_ids = [aws_security_group.linux_sg.id]
-  key_name = "g_linux"
   tags = {
     Name = "Amazon-Linux-Server"
   }
